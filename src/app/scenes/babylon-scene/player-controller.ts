@@ -9,6 +9,7 @@ export class PlayerController {
   private selectedPointId?: string;
   private meshes: { [key: string]: any } = {};
   private proximityThreshold = 1.5;
+  private stepSize = 1.5; // single-step equals cube size
 
   constructor(private interactionService: InteractionService) {}
 
@@ -28,7 +29,35 @@ export class PlayerController {
   }
 
   onKeyDown = (event: KeyboardEvent) => {
+    // prevent key-repeat from causing multiple moves while holding
+    if (this.keysPressed[event.key]) return;
     this.keysPressed[event.key] = true;
+
+    if (!this.playerCube) return;
+
+    let stepVec: Vector3 | undefined;
+    const s = this.stepSize;
+    switch (event.key) {
+      case 'ArrowUp':
+        stepVec = new Vector3(0, 0, -s);
+        break;
+      case 'ArrowDown':
+        stepVec = new Vector3(0, 0, s);
+        break;
+      case 'ArrowLeft':
+        stepVec = new Vector3(s, 0, 0);
+        break;
+      case 'ArrowRight':
+        stepVec = new Vector3(-s, 0, 0);
+        break;
+      default:
+        break;
+    }
+
+    if (stepVec) {
+      // perform a single discrete move with collisions
+      this.playerCube.moveWithCollisions(stepVec);
+    }
   };
 
   onKeyUp = (event: KeyboardEvent) => {
@@ -45,22 +74,8 @@ export class PlayerController {
 
   update(): void {
     if (!this.playerCube || !this.camera) return;
-
+    // discrete keyboard movement handled in onKeyDown; update() handles auto-move and camera follow
     const moveSpeed = 0.1;
-
-    // manual movement using collisions-aware movement
-    if (this.keysPressed['ArrowUp']) {
-      this.playerCube.moveWithCollisions(new Vector3(0, 0, -moveSpeed));
-    }
-    if (this.keysPressed['ArrowDown']) {
-      this.playerCube.moveWithCollisions(new Vector3(0, 0, moveSpeed));
-    }
-    if (this.keysPressed['ArrowLeft']) {
-      this.playerCube.moveWithCollisions(new Vector3(moveSpeed, 0, 0));
-    }
-    if (this.keysPressed['ArrowRight']) {
-      this.playerCube.moveWithCollisions(new Vector3(-moveSpeed, 0, 0));
-    }
 
     if (this.targetPosition) {
       const distanceToTarget = Vector3.Distance(this.playerCube.position, this.targetPosition);
