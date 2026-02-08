@@ -1,0 +1,26 @@
+<div class="info-panel" [class.visible]="selectedPoint">
+  <div class="panel-content" *ngIf="selectedPoint">
+    <button class="close-btn" (click)="closePanel()">✕</button>
+    
+    <h2 class="title">{{ selectedPoint.title }}</h2>
+    
+    <p class="date">{{ selectedPoint.date }}</p>
+    
+    <p class="description">{{ selectedPoint.description }}</p>
+    
+    <div class="skills">
+      <h3>Skills</h3>
+      <div class="skills-list">
+        <span class="skill" *ngFor="let skill of selectedPoint.skills">
+          {{ skill }}
+        </span>
+      </div>
+    </div>
+
+    <div *ngIf="selectedPoint.link" class="link-section">
+      <a [href]="selectedPoint.link" target="_blank" rel="noopener" class="project-link">
+        Ver Proyecto →
+      </a>
+    </div>
+  </div>
+</div>

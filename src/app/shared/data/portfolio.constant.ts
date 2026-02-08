@@ -1,0 +1,45 @@
+import { InteractivePoint } from '../models/interactive-point.model';
+
+export const PORTFOLIO_DATA: InteractivePoint[] = [
+  {
+    id: 'point-1',
+    title: 'Senior Frontend Developer',
+    description: 'Developed scalable Angular applications with TypeScript, RxJS, and state management. Implemented responsive UI with Material Design.',
+    date: '2021 - 2024',
+    skills: ['Angular', 'TypeScript', 'RxJS', 'Material Design', 'Figma'],
+    link: 'https://example.com/project-1',
+    position: { x: -3, y: 0, z: 0 },
+    color: { r: 1, g: 0.2, b: 0.2 }
+  },
+  {
+    id: 'point-2',
+    title: 'Full-Stack Developer',
+    description: 'Built end-to-end solutions with Node.js backend, MongoDB database, and Angular frontend. Managed CI/CD pipelines with Docker.',
+    date: '2019 - 2021',
+    skills: ['Node.js', 'MongoDB', 'Docker', 'Express', 'Angular'],
+    link: 'https://example.com/project-2',
+    position: { x: 0, y: 0, z: 0 },
+    color: { r: 0.2, g: 1, b: 0.2 }
+  },
+  {
+    id: 'point-3',
+    title: '3D Graphics & Babylon.js Specialist',
+    description: 'Created interactive 3D web experiences using Babylon.js. Optimized performance for WebGL rendering and implemented custom shaders.',
+    date: '2023 - Present',
+    skills: ['Babylon.js', 'WebGL', 'GLSL', '3D Modeling', 'Performance Optimization'],
+    link: 'https://example.com/project-3',
+    position: { x: 3, y: 0, z: 0 },
+    color: { r: 0.2, g: 0.2, b: 1 }
+  }
+  ,
+  {
+    id: 'player',
+    title: 'Main Character',
+    description: 'This is the main character sphere representing the portfolio owner.',
+    date: 'Present',
+    skills: ['Leadership', 'Design', '3D'],
+    link: 'https://example.com/about-me',
+    position: { x: 0, y: 0, z: 2 },
+    color: { r: 1, g: 1, b: 0 }
+  }
+];
