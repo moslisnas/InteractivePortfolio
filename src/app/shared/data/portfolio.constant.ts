@@ -8,7 +8,7 @@ export const PORTFOLIO_DATA: InteractivePoint[] = [
     date: '2021 - 2024',
     skills: ['Angular', 'TypeScript', 'RxJS', 'Material Design', 'Figma'],
     link: 'https://example.com/project-1',
-    position: { x: -3, y: 0, z: 0 },
+    position: { x: -8, y: 0, z: 0 },
     color: { r: 1, g: 0.2, b: 0.2 }
   },
   {
@@ -18,7 +18,7 @@ export const PORTFOLIO_DATA: InteractivePoint[] = [
     date: '2019 - 2021',
     skills: ['Node.js', 'MongoDB', 'Docker', 'Express', 'Angular'],
     link: 'https://example.com/project-2',
-    position: { x: 0, y: 0, z: 0 },
+    position: { x: 0, y: 0, z: -8 },
     color: { r: 0.2, g: 1, b: 0.2 }
   },
   {
@@ -28,10 +28,9 @@ export const PORTFOLIO_DATA: InteractivePoint[] = [
     date: '2023 - Present',
     skills: ['Babylon.js', 'WebGL', 'GLSL', '3D Modeling', 'Performance Optimization'],
     link: 'https://example.com/project-3',
-    position: { x: 3, y: 0, z: 0 },
+    position: { x: 8, y: 0, z: 0 },
     color: { r: 0.2, g: 0.2, b: 1 }
-  }
-  ,
+  },
   {
     id: 'player',
     title: 'Main Character',

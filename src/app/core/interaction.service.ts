@@ -57,6 +57,16 @@ export class InteractionService {
     return null;
   }
 
+  selectMesh(pointId: string): void {
+    const mesh = this.interactiveMeshes.get(pointId);
+    if (mesh) {
+      this.pickSubject.next({
+        mesh: mesh,
+        pointId: pointId,
+      });
+    }
+  }
+
   getInteractiveMeshes(): Map<string, AbstractMesh> {
     return this.interactiveMeshes;
   }
