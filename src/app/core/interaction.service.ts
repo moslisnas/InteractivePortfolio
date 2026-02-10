@@ -67,6 +67,13 @@ export class InteractionService {
     }
   }
 
+  deselectMesh(): void {
+    this.pickSubject.next({
+      mesh: null,
+      pointId: '',
+    });
+  }
+
   getInteractiveMeshes(): Map<string, AbstractMesh> {
     return this.interactiveMeshes;
   }

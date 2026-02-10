@@ -26,6 +26,12 @@ export class InfoPanelComponent implements OnInit, OnDestroy {
     this.interactionService.pick$
       .pipe(takeUntil(this.destroy$))
       .subscribe((pickInfo) => {
+        // Handle deselection
+        if (!pickInfo.pointId) {
+          this.selectedPoint = null;
+          return;
+        }
+
         this.portfolioDataService.getPointById(pickInfo.pointId)
           .pipe(takeUntil(this.destroy$))
           .subscribe((point) => {
@@ -41,5 +47,6 @@ export class InfoPanelComponent implements OnInit, OnDestroy {
 
   closePanel(): void {
     this.selectedPoint = null;
+    this.interactionService.deselectMesh();
   }
 }
