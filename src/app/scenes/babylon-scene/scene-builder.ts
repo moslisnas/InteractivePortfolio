@@ -3,46 +3,54 @@ import { InteractionService } from '../../core/interaction.service';
 
 export class SceneBuilder {
   static setupScene(scene: Scene, canvas: HTMLCanvasElement, interactionService: InteractionService) {
-    // Camera
+    // Camera - Positioned to view the Career Path journey
     const camera = new ArcRotateCamera('camera', 0, Math.PI / 4, 1, Vector3.Zero(), scene);
     camera.attachControl(canvas, true);
     camera.inputs.clear();
-    camera.position = new Vector3(0, 8, 8);
+    camera.position = new Vector3(0, 12, 15);
+    camera.inertia = 0.7;
+    camera.angularSensibilityX = 1000;
+    camera.angularSensibilityY = 1000;
 
-    // Lights
+    // Lights - Improved lighting for better visualization
     const ambientLight = new HemisphericLight('ambientLight', new Vector3(0.5, 1, 0.5), scene);
-    ambientLight.intensity = 0.4;
+    ambientLight.intensity = 0.5;
     ambientLight.groundColor = new Color3(0.15, 0.15, 0.2);
 
     const fillLight = new HemisphericLight('fillLight', new Vector3(-0.5, -1, -0.5), scene);
-    fillLight.intensity = 0.2;
+    fillLight.intensity = 0.3;
 
     scene.collisionsEnabled = true;
 
-    // Ground
-    const ground = MeshBuilder.CreateGround('ground', { width: 150, height: 150 }, scene);
+    // Create a giant ground plane simulating grass
+    const ground = MeshBuilder.CreateGround('ground', { width: 500, height: 500 }, scene);
     const groundMaterial = new StandardMaterial('groundMat', scene);
-    groundMaterial.emissiveColor = new Color3(0.3, 0.3, 0.35);
+    groundMaterial.diffuseColor = new Color3(0.2, 0.5, 0.2); // Green grass color
+    groundMaterial.specularColor = new Color3(0.1, 0.1, 0.1);
     ground.material = groundMaterial;
-    ground.position.y = -1.5;
+    ground.position.y = -1;
+    ground.checkCollisions = true;
 
-    // Guides (axis)
+    // Guide objects (axes) - Optional for development/debugging
     const guideObjects: Mesh[] = [];
-    const axisSize = 3;
+    const axisSize = 5;
 
-    const xLine = MeshBuilder.CreateTube('xAxis', { path: [Vector3.Zero(), new Vector3(axisSize, 0, 0)], radius: 0.05 }, scene);
+    // X-axis (Red)
+    const xLine = MeshBuilder.CreateTube('xAxis', { path: [Vector3.Zero(), new Vector3(axisSize, 0, 0)], radius: 0.1 }, scene);
     const xMat = new StandardMaterial('xMat', scene);
     xMat.emissiveColor = new Color3(1, 0, 0);
     xLine.material = xMat;
     guideObjects.push(xLine);
 
-    const yLine = MeshBuilder.CreateTube('yAxis', { path: [Vector3.Zero(), new Vector3(0, axisSize, 0)], radius: 0.05 }, scene);
+    // Y-axis (Green)
+    const yLine = MeshBuilder.CreateTube('yAxis', { path: [Vector3.Zero(), new Vector3(0, axisSize, 0)], radius: 0.1 }, scene);
     const yMat = new StandardMaterial('yMat', scene);
     yMat.emissiveColor = new Color3(0, 1, 0);
     yLine.material = yMat;
     guideObjects.push(yLine);
 
-    const zLine = MeshBuilder.CreateTube('zAxis', { path: [Vector3.Zero(), new Vector3(0, 0, axisSize)], radius: 0.05 }, scene);
+    // Z-axis (Blue)
+    const zLine = MeshBuilder.CreateTube('zAxis', { path: [Vector3.Zero(), new Vector3(0, 0, axisSize)], radius: 0.1 }, scene);
     const zMat = new StandardMaterial('zMat', scene);
     zMat.emissiveColor = new Color3(0, 0, 1);
     zLine.material = zMat;

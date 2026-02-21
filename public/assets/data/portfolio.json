@@ -1,34 +1,179 @@
 {
+  "title": "The Career Path - Interactive Portfolio",
+  "description": "A progressive journey through professional evolution in technology",
   "points": [
     {
-      "id": "point-1",
-      "title": "Senior Frontend Developer",
-      "description": "Developed scalable Angular applications with TypeScript, RxJS, and state management. Implemented responsive UI with Material Design.",
-      "date": "2021 - 2024",
-      "skills": ["Angular", "TypeScript", "RxJS", "Material Design", "Figma"],
-      "link": "https://example.com/project-1",
-      "position": { "x": -3, "y": 0, "z": 0 },
-      "color": { "r": 1, "g": 0.2, "b": 0.2 }
+      "id": "player",
+      "title": "Your Journey Begins",
+      "description": "Welcome to The Career Path. This is your story of professional evolution. Follow the path ahead to explore your journey through technology.",
+      "date": "Present",
+      "skills": ["Leadership", "Innovation", "Architecture"],
+      "position": {"x": 0, "y": 1, "z": 0},
+      "color": {"r": 1, "g": 1, "b": 0},
+      "zone": "spawn"
     },
     {
-      "id": "point-2",
-      "title": "Full-Stack Developer",
-      "description": "Built end-to-end solutions with Node.js backend, MongoDB database, and Angular frontend. Managed CI/CD pipelines with Docker.",
-      "date": "2019 - 2021",
-      "skills": ["Node.js", "MongoDB", "Docker", "Express", "Angular"],
-      "link": "https://example.com/project-2",
-      "position": { "x": 0, "y": 0, "z": 0 },
-      "color": { "r": 0.2, "g": 1, "b": 0.2 }
+      "id": "university-main",
+      "title": "🎓 Universidad de Granada",
+      "description": "Grado en Ingeniería Informática. Aquí comenzó todo. Especialización en Ingeniería del Software.",
+      "date": "2013 - 2018",
+      "skills": ["Algorithms", "Data Structures", "System Design", "Software Engineering"],
+      "position": {"x": 0, "y": 0, "z": 12},
+      "color": {"r": 0.3, "g": 0.7, "b": 1},
+      "zone": "universidad"
     },
     {
-      "id": "point-3",
-      "title": "3D Graphics & Babylon.js Specialist",
-      "description": "Created interactive 3D web experiences using Babylon.js. Optimized performance for WebGL rendering and implemented custom shaders.",
-      "date": "2023 - Present",
-      "skills": ["Babylon.js", "WebGL", "GLSL", "3D Modeling", "Performance Optimization"],
-      "link": "https://example.com/project-3",
-      "position": { "x": 3, "y": 0, "z": 0 },
-      "color": { "r": 0.2, "g": 0.2, "b": 1 }
+      "id": "university-geotales",
+      "title": "📱 Proyecto Fin de Grado: Geotales",
+      "description": "Aplicación interactiva para exploración geográfica con AR y gamificación.",
+      "date": "2018",
+      "skills": ["Mobile Development", "AR", "Gamification", "Real-time Data"],
+      "position": {"x": 3, "y": 0, "z": 12},
+      "color": {"r": 0.3, "g": 0.7, "b": 1},
+      "zone": "universidad"
+    },
+    {
+      "id": "languages-spanish",
+      "title": "🇪🇸 Español",
+      "description": "Lengua nativa. Comunicación profesional y técnica completa.",
+      "date": "Native",
+      "skills": ["Communication", "Technical Writing", "Leadership"],
+      "position": {"x": -3, "y": 0, "z": 22},
+      "color": {"r": 1, "g": 0.6, "b": 0},
+      "zone": "languages"
+    },
+    {
+      "id": "languages-english",
+      "title": "🇬🇧 English",
+      "description": "Nivel B1 certificado. Experiencia profesional en entornos técnicos internacionales.",
+      "date": "B1 Certified",
+      "skills": ["International Communication", "Technical Documentation", "Agile Teams"],
+      "position": {"x": 3, "y": 0, "z": 22},
+      "color": {"r": 1, "g": 0.6, "b": 0},
+      "zone": "languages"
+    },
+    {
+      "id": "tsystems-programmer",
+      "title": "👨‍💻 Programmer",
+      "description": "Mis primeros pasos en T-Systems. Desarrollo web, automatización, trabajo en Scrum.",
+      "date": "2018 - 2020",
+      "skills": ["PHP", "C#", "JavaScript", "SharePoint", "MySQL", "Scrum"],
+      "position": {"x": -12, "y": 0, "z": 32},
+      "color": {"r": 1, "g": 0.3, "b": 0.3},
+      "zone": "tsystems"
+    },
+    {
+      "id": "tsystems-fullstack",
+      "title": "🚀 Senior Full-Stack Developer (SmartCities)",
+      "description": "Evolución hacia proyectos complejos. Full-Stack con foco Front-End. SmartCities.",
+      "date": "2020 - 2023",
+      "skills": ["React", "Next.js", "TypeScript", "Elasticsearch", "Docker", "Accessibility", "UX"],
+      "position": {"x": 0, "y": 0, "z": 38},
+      "color": {"r": 1, "g": 1, "b": 0},
+      "zone": "tsystems"
+    },
+    {
+      "id": "tsystems-lead",
+      "title": "🎯 Technical Lead & Analyst",
+      "description": "Liderazgo técnico. Gestión de equipos de +25 personas. Decisiones arquitectónicas.",
+      "date": "2023 - 2024",
+      "skills": ["Java", "GitFlow", "Jenkins", "PL/SQL", "WebLogic", "Architecture", "Team Leadership"],
+      "position": {"x": 12, "y": 0, "z": 32},
+      "color": {"r": 0.3, "g": 1, "b": 0.3},
+      "zone": "tsystems"
+    },
+    {
+      "id": "frontend-main",
+      "title": "⚛️ Front-End Architecture Specialist",
+      "description": "Especialización en Angular, React, TypeScript. Estado, arquitectura, performance, accesibilidad.",
+      "date": "2024 - Present",
+      "skills": ["Angular", "React", "TypeScript", "State Management", "Performance", "Accessibility", "Testing"],
+      "position": {"x": 0, "y": 0.5, "z": 48},
+      "color": {"r": 0.1, "g": 0.6, "b": 1},
+      "zone": "frontend"
+    },
+    {
+      "id": "github-geotales",
+      "title": "📍 Geotales - Interactive Maps & AR",
+      "description": "Proyecto de exploración geográfica interactiva con realidad aumentada.",
+      "date": "2018",
+      "skills": ["Mobile Development", "AR", "Maps API", "Real-time Updates"],
+      "position": {"x": -4, "y": 0.2, "z": 58},
+      "color": {"r": 0.8, "g": 0.2, "b": 0.8},
+      "zone": "github"
+    },
+    {
+      "id": "github-renderengine",
+      "title": "🎮 Render Engine - OpenGL",
+      "description": "Motor de renderizado 3D. Implementación con OpenGL y optimización de gráficos.",
+      "date": "2019-2020",
+      "skills": ["C++", "OpenGL", "Graphics Programming", "3D Math", "Performance"],
+      "position": {"x": 0, "y": 0.2, "z": 58},
+      "color": {"r": 0.8, "g": 0.2, "b": 0.8},
+      "zone": "github"
+    },
+    {
+      "id": "github-frontend-projects",
+      "title": "💻 Modern Front-End Ecosystem",
+      "description": "Colección de proyectos front-end modernos con Angular, React, Next.js y TypeScript.",
+      "date": "2021 - Present",
+      "skills": ["Angular", "React", "Next.js", "TypeScript", "Testing", "State Management"],
+      "position": {"x": 4, "y": 0.2, "z": 58},
+      "color": {"r": 0.8, "g": 0.2, "b": 0.8},
+      "zone": "github"
+    },
+    {
+      "id": "future-contact",
+      "title": "🔗 Let's Connect",
+      "description": "Enfocado en Front-End avanzado, Angular, Next.js y arquitecturas escalables.",
+      "date": "Present & Beyond",
+      "skills": ["Full-Stack Vision", "Innovation", "Collaboration", "Continuous Learning"],
+      "position": {"x": 0, "y": 0, "z": 68},
+      "color": {"r": 1, "g": 0.5, "b": 0},
+      "zone": "future"
+    }
+  ],
+  "decoration": [
+    {
+      "id": "uni-tree-1",
+      "position": {"x": -6, "y": 0, "z": 8},
+      "mesh": "/assets/kenney_nature-kit/Models/GLTF format/tree_oak.glb"
+    },
+    {
+      "id": "uni-tree-2",
+      "position": {"x": 6, "y": 0, "z": 8},
+      "mesh": "/assets/kenney_nature-kit/Models/GLTF format/tree_oak.glb"
+    },
+    {
+      "id": "tsystems-stage1-building-1",
+      "position": {"x": -12, "y": 0, "z": 28},
+      "mesh": "/assets/kenney_city-kit-commercial_2.1/Models/GLB format/building_a.glb"
+    },
+    {
+      "id": "tsystems-stage2-building-1",
+      "position": {"x": -3, "y": 0.3, "z": 35},
+      "mesh": "/assets/kenney_city-kit-commercial_2.1/Models/GLB format/building-skyscraper-a.glb"
+    },
+    {
+      "id": "tsystems-stage3-building-1",
+      "position": {"x": 12, "y": 0, "z": 28},
+      "mesh": "/assets/kenney_city-kit-commercial_2.1/Models/GLB format/building-skyscraper-d.glb"
+    },
+    {
+      "id": "frontend-building-1",
+      "position": {"x": -6, "y": 0.2, "z": 50},
+      "mesh": "/assets/kenney_city-kit-commercial_2.1/Models/GLB format/building_c.glb"
+    },
+    {
+      "id": "github-building-1",
+      "position": {"x": -4, "y": 0.1, "z": 52},
+      "mesh": "/assets/kenney_city-kit-commercial_2.1/Models/GLB format/building_e.glb"
+    },
+    {
+      "id": "future-building-final",
+      "position": {"x": 0, "y": 0.4, "z": 68},
+      "mesh": "/assets/kenney_city-kit-commercial_2.1/Models/GLB format/building-skyscraper-d.glb"
     }
   ]
 }
+

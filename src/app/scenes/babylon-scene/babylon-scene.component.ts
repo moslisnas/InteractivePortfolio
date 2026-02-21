@@ -5,7 +5,7 @@ import { PortfolioDataService } from '../../core/portfolio-data.service';
 import { InteractionService } from '../../core/interaction.service';
 import { InteractivePoint } from '../../shared/models/interactive-point.model';
 import { SceneBuilder } from './scene-builder';
-import { createInteractiveCube } from './mesh-factory';
+import { loadCharacterModel } from './mesh-factory';
 import { PlayerController } from './player-controller';
 
 @Component({
@@ -58,38 +58,35 @@ export class BabylonSceneComponent implements AfterViewInit, OnDestroy {
   // Scene setup is delegated to SceneBuilder
 
   private loadPortfolioData(): void {
-    this.portfolioDataService.loadData().subscribe((points) => {
-      console.log('Portfolio data loaded:', points);
+    this.portfolioDataService.loadDataPoints().subscribe((points) => {
+      console.log('Portfolio data points loaded:', points);
       this.portfolioPoints = points;
       this.createInteractiveCubes();
     });
+    
+    // Decorations disabled for minimal scene (we only want the player centered)
   }
 
   private createInteractiveCubes(): void {
     if (!this.scene) return;
+    // Only create the player and place it at the world origin
+    console.log('Creating only the player mesh');
+    const playerPoint = this.portfolioPoints.find((p) => p.id === 'player');
+    if (!playerPoint) {
+      console.warn('No player point found in portfolio data');
+      return;
+    }
 
-    console.log('Creating cubes for', this.portfolioPoints.length, 'points');
-    this.portfolioPoints.forEach((point) => {
-      const cube = createInteractiveCube(this.scene!, point);
-      console.log('Created cube', point.id, 'at', cube.position);
-      this.interactionService.registerMesh(point.id, cube);
-      this.meshes[point.id] = cube;
-
-      if (point.id === 'player') {
-        this.playerController?.attachPlayer(cube);
+    (async () => {
+      const mesh = await loadCharacterModel(this.scene!, playerPoint);
+      if (mesh) {
+        mesh.position = new Vector3(0, 0, 0);
+        console.log('Created player mesh at', mesh.position);
+        this.interactionService.registerMesh(playerPoint.id, mesh);
+        this.meshes[playerPoint.id] = mesh;
+        this.playerController?.attachPlayer(mesh);
       }
-    });
-
-    // pointer handling: move player towards clicked mesh
-    this.scene.onPointerDown = () => {
-      const pickResult = this.scene?.pick(this.scene.pointerX, this.scene.pointerY);
-      if (pickResult?.hit && pickResult.pickedMesh) {
-        const meshId = pickResult.pickedMesh.name;
-        if (meshId !== 'player' && meshId !== 'ground' && !meshId.startsWith('Tube') && !meshId.startsWith('yAxis') && !meshId.startsWith('xAxis') && !meshId.startsWith('zAxis')) {
-          this.playerController?.moveToMeshById(meshId);
-        }
-      }
-    };
+    })();
   }
 
   // Movement and camera update delegated to PlayerController

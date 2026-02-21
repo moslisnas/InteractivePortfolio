@@ -7,4 +7,7 @@ export interface InteractivePoint {
   link?: string;
   position?: { x: number; y: number; z: number };
   color?: { r: number; g: number; b: number };
+  zone?: string;
+  category?: string;
+  isCharacterPoint?: boolean;
 }
