@@ -12,6 +12,8 @@ export class PlayerController {
   private stepSize = 1.5; // single-step equals cube size
   private autoMoveAccumulator = 0; // accumulator for smooth auto-movement
   private autoMoveStepThreshold = 0.36; // threshold to trigger next auto-step (higher = slower)
+  private keyboardAccumulator = 0; // accumulator for continuous keyboard movement
+  private keyboardStepDelay = 0.15; // delay between steps when holding arrow key
 
   constructor(private interactionService: InteractionService) {
     // Listen to deselection events to clear selection when panel is closed
@@ -55,36 +57,12 @@ export class PlayerController {
       return;
     }
 
-    // prevent key-repeat from causing multiple moves while holding
-    if (this.keysPressed[event.key]) return;
-    this.keysPressed[event.key] = true;
-
-    if (!this.playerCube) return;
-
-    let stepVec: Vector3 | undefined;
-    const s = this.stepSize;
-    switch (event.key) {
-      case 'ArrowUp':
-        stepVec = new Vector3(0, 0, -s);
-        break;
-      case 'ArrowDown':
-        stepVec = new Vector3(0, 0, s);
-        break;
-      case 'ArrowLeft':
-        stepVec = new Vector3(s, 0, 0);
-        break;
-      case 'ArrowRight':
-        stepVec = new Vector3(-s, 0, 0);
-        break;
-      default:
-        break;
-    }
-
-    if (stepVec) {
-      // clear auto-movement when user manually moves
-      this.targetPosition = undefined;
-      // perform a single discrete move with collisions
-      this.playerCube.moveWithCollisions(stepVec);
+    // Track arrow keys (movement happens in update())
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+      if (!this.keysPressed[event.key]) {
+        this.keysPressed[event.key] = true;
+        this.keyboardAccumulator = 0; // Reset when first pressed
+      }
     }
   };
 
@@ -147,7 +125,11 @@ export class PlayerController {
 
   update(): void {
     if (!this.playerCube || !this.camera) return;
-    // discrete keyboard movement handled in onKeyDown; update() handles auto-move and camera follow
+    
+    // Handle continuous keyboard movement (Pokémon-style)
+    this.handleContinuousKeyboardMovement();
+    
+    // discrete keyboard movement handled above; update() handles auto-move and camera follow
     const moveSpeed = 0.04; // slower auto-move accumulator increment
 
     if (this.targetPosition) {
@@ -225,5 +207,69 @@ export class PlayerController {
 
     this.camera.position = new Vector3(playerX, cameraY, playerZ + cameraZOffset);
     this.camera.target = new Vector3(playerX, playerY + 0.5, playerZ);
+  }
+
+  private handleContinuousKeyboardMovement(): void {
+    if (!this.playerCube) return;
+
+    // Process each arrow key that is currently pressed
+    const keyDirectionMap: { [key: string]: Vector3 } = {
+      'ArrowUp': new Vector3(0, 0, -1),
+      'ArrowDown': new Vector3(0, 0, 1),
+      'ArrowLeft': new Vector3(1, 0, 0),
+      'ArrowRight': new Vector3(-1, 0, 0)
+    };
+
+    for (const [key, isPressed] of Object.entries(this.keysPressed)) {
+      if (!isPressed || !keyDirectionMap[key]) continue;
+
+      // Accumulate time for this key press
+      this.keyboardAccumulator += 0.016; // ~60fps: 16ms per frame
+
+      // When accumulator reaches threshold, execute a step
+      if (this.keyboardAccumulator >= this.keyboardStepDelay) {
+        const direction = keyDirectionMap[key];
+        const moveAmount = this.stepSize;
+        const stepVec = new Vector3(
+          direction.x * moveAmount,
+          0,
+          direction.z * moveAmount
+        );
+
+        // Rotate player toward direction
+        this.rotatePlayerTowardDirection(direction);
+
+        // Check collision before moving
+        const newPos = this.playerCube.position.add(stepVec);
+        if (this.canMoveTo(newPos)) {
+          this.playerCube.position.addInPlace(stepVec);
+        }
+
+        // Reset accumulator after step
+        this.keyboardAccumulator = 0;
+      }
+    }
+  }
+
+  private rotatePlayerTowardDirection(direction: Vector3): void {
+    if (!this.playerCube) return;
+    // Calculate rotation angle: atan2(x, z) gives Y-axis rotation
+    const angle = Math.atan2(direction.x, direction.z);
+    this.playerCube.rotation.y = angle;
+  }
+
+  private canMoveTo(newPosition: Vector3): boolean {
+    if (!this.playerCube) return false;
+
+    // Check collision with all meshes except player
+    for (const [meshId, mesh] of Object.entries(this.meshes)) {
+      if (meshId === 'player' || !mesh) continue;
+      const distance = Vector3.Distance(newPosition, mesh.position);
+      // Collision radius: player 0.75 + obstacle 0.75 = 1.5, with small buffer
+      if (distance < 1.5) {
+        return false;
+      }
+    }
+    return true;
   }
 }
