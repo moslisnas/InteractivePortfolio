@@ -21,6 +21,9 @@ export class PlayerController {
   private walkLocked = false;
   private idleTimer: any = null;
   private movementKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+  private keyboardAccumulator = 0; // accumulator for continuous keyboard movement
+  private keyboardStepDelay = 0.35; // delay between steps when holding arrow key
+  private keyPressedTime: { [key: string]: number } = {}; // track time each key is held
 
   constructor(private interactionService: InteractionService) {
     // Listen to deselection events to clear selection when panel is closed
@@ -44,24 +47,34 @@ export class PlayerController {
     this.playerCube.rotation.y = angle;
   }
 
+  private getDirection(key: string): Vector3 | null {
+    switch (key) {
+      case 'ArrowUp':
+        return new Vector3(0, 0, -1);
+      case 'ArrowDown':
+        return new Vector3(0, 0, 1);
+      case 'ArrowLeft':
+        return new Vector3(1, 0, 0);
+      case 'ArrowRight':
+        return new Vector3(-1, 0, 0);
+      default:
+        return null;
+    }
+  }
+
   private canMoveTo(newPosition: Vector3): boolean {
     if (!this.playerCube) return false;
-
-    const collisionRadius = 0.9; // Approximate radius to check for collisions
 
     // Check collision with all meshes except player
     for (const [meshId, mesh] of Object.entries(this.meshes)) {
       if (meshId === 'player' || !mesh) continue;
-
       const distance = Vector3.Distance(newPosition, mesh.position);
-      // If distance is less than sum of collision radii, there would be collision
-      // Use 1.5 as approximate size of other objects
-      if (distance < collisionRadius + 0.75) {
-        return false; // Collision detected
+      // Collision radius: player 0.75 + obstacle 0.75 = 1.5, with small buffer
+      if (distance < 1.5) {
+        return false;
       }
     }
-
-    return true; // No collision
+    return true;
   }
 
   setMeshes(meshes: { [key: string]: any }) {
@@ -92,9 +105,11 @@ export class PlayerController {
         if (!this.idleAnimation && n.includes('idle')) this.idleAnimation = g;
         if (!this.walkAnimation && (n.includes('walk') || n.includes('run'))) this.walkAnimation = g;
       }
-      // fallbacks
+      // fallbacks - ensure we always have animations
       if (!this.idleAnimation && this.animationGroups.length > 0) this.idleAnimation = this.animationGroups[0];
       if (!this.walkAnimation && this.animationGroups.length > 1) this.walkAnimation = this.animationGroups[1];
+      if (!this.walkAnimation && this.animationGroups.length > 0) this.walkAnimation = this.animationGroups[0];
+      
       // Start idle animation by default
       this.playIdle();
     }
@@ -112,53 +127,56 @@ export class PlayerController {
       return;
     }
 
-    // prevent key-repeat from causing multiple moves while holding
+    // prevent key-repeat from causing multiple initial presses
     if (this.keysPressed[event.key]) return;
+    
+    // Mark key as pressed and record the time
     this.keysPressed[event.key] = true;
-
+    this.keyPressedTime[event.key] = Date.now();
+    
     if (!this.playerCube) return;
 
-    let stepVec: Vector3 | undefined;
-    const s = this.stepSize;
-    switch (event.key) {
-      case 'ArrowUp':
-        stepVec = new Vector3(0, 0, -s);
-        break;
-      case 'ArrowDown':
-        stepVec = new Vector3(0, 0, s);
-        break;
-      case 'ArrowLeft':
-        stepVec = new Vector3(s, 0, 0);
-        break;
-      case 'ArrowRight':
-        stepVec = new Vector3(-s, 0, 0);
-        break;
-      default:
-        break;
-    }
-
-    if (stepVec) {
-      // clear auto-movement when user manually moves
-      this.targetPosition = undefined;
-      // start walk animation (one full cycle) and clear any pending idle timer
-      this.playWalk();
-      if (this.idleTimer) {
-        clearTimeout(this.idleTimer);
-        this.idleTimer = null;
-      }
-      // rotate player to face movement direction
-      this.rotatePlayerTowardDirection(stepVec);
-      // check for collision and move if safe
-      const newPos = this.playerCube.position.add(stepVec);
-      if (this.canMoveTo(newPos)) {
-        this.playerCube.position = newPos;
-      }
-      // (no idle scheduling here) avoid interrupting a full walk animation
+    // Handle movement keys - make initial discrete step
+    if (this.movementKeys.includes(event.key)) {
+      this.executeMovementStep(event.key);
     }
   };
 
+  private executeMovementStep(key: string): void {
+    if (!this.playerCube) return;
+
+    // Get direction from key
+    const direction = this.getDirection(key);
+    if (!direction) return;
+
+    // Clear auto-movement when user manually moves
+    this.targetPosition = undefined;
+
+    const moveAmount = this.stepSize;
+    const stepVec = new Vector3(
+      direction.x * moveAmount,
+      0,
+      direction.z * moveAmount
+    );
+
+    // Rotate player toward direction
+    this.rotatePlayerTowardDirection(direction);
+
+    // Check collision before moving
+    const newPos = this.playerCube.position.add(stepVec);
+    if (this.canMoveTo(newPos)) {
+      this.playerCube.position.addInPlace(stepVec);
+    }
+
+    // Play walk animation for this step
+    this.playWalk();
+  }
+
   onKeyUp = (event: KeyboardEvent) => {
     this.keysPressed[event.key] = false;
+    delete this.keyPressedTime[event.key];
+    // Reset accumulator when key is released
+    this.keyboardAccumulator = 0;
     // if no movement keys are pressed and no auto-target, go to idle
     const anyMove = this.movementKeys.some((k) => !!this.keysPressed[k]);
     if (!anyMove && !this.targetPosition) {
@@ -253,14 +271,17 @@ export class PlayerController {
 
   private playWalk(): void {
     if (!this.animationGroups || this.animationGroups.length === 0) return;
-    if (this.isWalking) return;
+    if (this.isWalking) return; // Already walking, don't interrupt
+    
     this.isWalking = true;
     this.walkLocked = true;
     this.stopAllAnimations();
+    
     const toPlay = this.walkAnimation || this.animationGroups[1] || this.animationGroups[0];
     try {
-      // play non-looped to ensure it reaches its end
+      // play non-looped to play one complete cycle
       try { toPlay.start(false); } catch (e) { try { toPlay.start(true); } catch (e2) { /*ignore*/ } }
+      
       // attach end observer to switch back to idle when walk animation finishes
       if ((toPlay as any).onAnimationGroupEndObservable) {
         // remove previous observer if any
@@ -271,23 +292,37 @@ export class PlayerController {
         this.walkAnimation = toPlay;
         this.walkEndObserver = (toPlay as any).onAnimationGroupEndObservable.add(() => {
           try { (toPlay as any).stop(); } catch (e) { }
-          // slight delay to allow skeleton to settle, then play idle
-          setTimeout(() => {
-            this.walkLocked = false;
-            this.isWalking = false;
+          // Clear flags immediately when animation ends
+          this.walkLocked = false;
+          this.isWalking = false;
+          // Check if any movement keys are still pressed
+          const anyMove = this.movementKeys.some((k) => !!this.keysPressed[k]);
+          if (!anyMove && !this.targetPosition) {
+            // No movement keys pressed, go to idle
             this.playIdle();
-          }, 25);
+          }
         });
       } else {
-        // if no end observable, fallback to clearing flags after duration estimated from range
-        // (best-effort) clear lock after 600ms
-        setTimeout(() => { this.walkLocked = false; this.isWalking = false; this.playIdle(); }, 600);
+        // if no end observable, fallback to clearing flags after duration
+        setTimeout(() => { 
+          this.walkLocked = false; 
+          this.isWalking = false; 
+          // Check if any movement keys are still pressed
+          const anyMove = this.movementKeys.some((k) => !!this.keysPressed[k]);
+          if (!anyMove && !this.targetPosition) {
+            this.playIdle();
+          }
+        }, 600);
       }
     } catch (e) { /* ignore */ }
   }
   update(): void {
     if (!this.playerCube || !this.camera) return;
-    // discrete keyboard movement handled in onKeyDown; update() handles auto-move and camera follow
+    
+    // Handle continuous keyboard movement (if key is held down)
+    this.handleContinuousKeyboardMovement();
+    
+    // Auto-move to targets and camera follow
     const moveSpeed = 0.04; // slower auto-move accumulator increment
 
     if (this.targetPosition) {
@@ -389,5 +424,66 @@ export class PlayerController {
 
     this.camera.position = new Vector3(playerX, cameraY, playerZ + cameraZOffset);
     this.camera.target = new Vector3(playerX, playerY + 0.5, playerZ);
+  }
+
+  private handleContinuousKeyboardMovement(): void {
+    if (!this.playerCube) return;
+
+    // Check if any movement key is pressed
+    const activeKeys = this.movementKeys.filter((key) => !!this.keysPressed[key]);
+    if (activeKeys.length === 0) {
+      // No movement keys pressed
+      this.keyboardAccumulator = 0;
+      return;
+    }
+
+    // Clear auto-movement when user manually moves
+    this.targetPosition = undefined;
+
+    // Check if key has been pressed long enough for continuous movement
+    const currentKey = activeKeys[0];
+    const timePressedMs = Date.now() - (this.keyPressedTime[currentKey] || Date.now());
+    
+    // Only do continuous movement if key has been held for more than the initial delay
+    if (timePressedMs < this.keyboardStepDelay * 1000) {
+      // Still in initial press phase - wait for continuous movement trigger
+      return;
+    }
+
+    // Accumulate time for continuous movement
+    this.keyboardAccumulator += 0.016; // ~60fps: 16ms per frame
+
+    // When accumulator reaches threshold, execute a step
+    if (this.keyboardAccumulator >= this.keyboardStepDelay) {
+      // Process the first/priority active key
+      const key = activeKeys[0];
+      const direction = this.getDirection(key);
+      
+      if (direction) {
+        const moveAmount = this.stepSize;
+        const stepVec = new Vector3(
+          direction.x * moveAmount,
+          0,
+          direction.z * moveAmount
+        );
+
+        // Rotate player toward direction
+        this.rotatePlayerTowardDirection(direction);
+
+        // Play walk animation if not already walking
+        if (!this.isWalking && !this.walkLocked) {
+          this.playWalk();
+        }
+
+        // Check collision before moving
+        const newPos = this.playerCube.position.add(stepVec);
+        if (this.canMoveTo(newPos)) {
+          this.playerCube.position.addInPlace(stepVec);
+        }
+
+        // Reset accumulator after step
+        this.keyboardAccumulator = 0;
+      }
+    }
   }
 }
